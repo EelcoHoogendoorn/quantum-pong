@@ -1,4 +1,4 @@
-name: quantum-pong
+name: quantum_pong
 channels:
   - anaconda
   - clinicalgraphics

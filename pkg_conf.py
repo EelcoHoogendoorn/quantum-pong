@@ -10,7 +10,7 @@ AUTHOR_EMAIL = 'hoogendoorn.eelco@gmail.com'
 DOC_ROOT = 'docs'
 ANACONDA_USER = 'EelcoHoogendoorn'
 PKG_ROOT = 'quantum_pong'
-PKG_NAME = 'quantum-pong'
+PKG_NAME = 'quantum_pong'
 DATA_FILES = ["*.npz", "*.json"]
 
 ################################
