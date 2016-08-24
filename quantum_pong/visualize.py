@@ -42,6 +42,8 @@ class Canvas(vispy.app.Canvas):
 
 if __name__ == '__main__':
     sim = Simulation((256, 256), [1, 1], 0.1)
+    sim.phi = sim.gaussian_wave(pos=[0.0, -0.0], vec=[200, 50], sigma=0.05)
+
     win = Canvas(sim)
     # import sys
     # if sys.flags.interactive != 1:

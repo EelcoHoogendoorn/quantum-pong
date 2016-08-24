@@ -1,11 +1,14 @@
 
 """
 http://www.physics.buffalo.edu/phy410-505-2009/topic5/lec-5-5.pdf
+simulation module
 
+todo; allow for multiple inteacting electons
 """
 import numpy as np
 import matplotlib.colors
 
+# global constants
 h_bar = 1
 mass = 1e-3
 E = 1
@@ -20,7 +23,7 @@ def backward(x):
 def fftfreq(shape):
     """grid of k vectors for a given shape"""
     ndim = len(shape)
-    f = np.empty((shape) + (ndim,), np.float32)
+    f = np.empty(tuple(shape) + (ndim,), np.float32)
     for i, s in enumerate(shape):
         q = [1] * ndim
         q[i] = s
@@ -39,30 +42,27 @@ def phi_to_hsv(phi, V=None):
     d = np.sqrt(d)
     p = phase(phi)
     p = (p + np.pi) / (2 * np.pi)
+    ones = np.ones_like(d)
     if V is None:
         V = np.zeros_like(d)
     E = d + V
-    hsv = np.dstack([p, d, E])
+    hsv = np.dstack([p, ones, d])
     rgb = matplotlib.colors.hsv_to_rgb(hsv)
     return rgb
 
 
 def create_grid(shape, dimensions):
     """construt coordinates grid and corresponding spatial frequency vectors"""
+    shape = np.asarray(shape)
+    dimensions = np.asarray(dimensions)
+    ndim = len(shape)
     coordinates = np.indices(shape, np.float32)
-    coordinates = np.moveaxis(coordinates, 0, 2) / shape * dimensions
-
+    coordinates = np.moveaxis(coordinates, 0, ndim)
+    coordinates = coordinates - (shape - 1) * 0.5
+    coordinates = coordinates / shape * dimensions
+    spacing = dimensions / shape
     frequencies = fftfreq(shape)
     return coordinates, frequencies
-
-
-def gaussian_wave(coordinates, pos, vec, sigma):
-    r = coordinates - pos
-    norm = np.sqrt(sigma * np.sqrt(np.pi))
-    gaussian = np.exp(-((r ** 2).sum(axis=-1) / sigma ** 2)) / norm
-    # k_0 = np.sqrt(2 * mass * E - h_bar ** 2 / 2 / sigma ** 2) / h_bar
-    wave = np.exp(coordinates.dot(vec) * 1j)
-    return gaussian * wave
 
 
 class Simulation(object):
@@ -73,10 +73,10 @@ class Simulation(object):
         self.coordinates, self.wave_vectors = create_grid(shape, dimensions)
 
         self.phi = np.zeros(shape, np.complex64)
-        self.phi = gaussian_wave(self.coordinates, pos=[0.5, 0.5], vec=[200, 50], sigma=0.05)
 
         if V is None:
             V = np.zeros(shape, np.float32)
+            V = ((self.coordinates * 3) ** 2).sum(axis=-1) * 200
         self.V = V
 
         self.set_timestep(tau)
@@ -100,19 +100,21 @@ class Simulation(object):
     def get_image(self):
         return phi_to_hsv(self.phi, self.V)
 
-def main():
-
-    shape = 2**8, 2**8
-
-    sim = Simulation(shape, [1, 1], tau=0.1)
-
-    import matplotlib.pyplot as plt
-    sim.phi = gaussian_wave(sim.coordinates, pos=[0.5, 0.5], vec=[100, 30], sigma=0.1)
-    # plt.imshow(density(g))
-
-    plt.imshow(phi_to_hsv(sim.phi))
-    plt.show()
+    def gaussian_wave(self, pos, vec, sigma):
+        r = self.coordinates - pos
+        norm = np.sqrt(sigma * np.sqrt(np.pi))
+        gaussian = np.exp(-((r ** 2).sum(axis=-1) / sigma ** 2)) / norm
+        # k_0 = np.sqrt(2 * mass * E - h_bar ** 2 / 2 / sigma ** 2) / h_bar
+        wave = np.exp(self.coordinates.dot(vec) * 1j)
+        return gaussian * wave
 
 
 if __name__ == '__main__':
-    main()
+    shape = 2**8, 2**8
+
+    sim = Simulation(shape, [1, 1], tau=0.1)
+    sim.phi = sim.gaussian_wave(pos=[0.0, 0.0], vec=[100, 30], sigma=0.1)
+
+    import matplotlib.pyplot as plt
+    plt.imshow(sim.get_image())
+    plt.show()
