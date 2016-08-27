@@ -84,7 +84,7 @@ class Canvas(app.Canvas):
         # Create program
         self.gl_program = gloo.Program(vertex, fragment)
         self.gl_tex = gloo.Texture2D(numpy.zeros((self.tex_size, self.tex_size), dtype=numpy.float32) + 0.5)
-        self.gl_tex.activate()
+        # self.gl_tex.activate()
         print("activated")
         # Set uniforms and samplers
         positions = numpy.array([[-1.0, -1.0, 0.0], [+1.0, -1.0, 0.0],

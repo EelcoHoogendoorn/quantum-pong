@@ -24,4 +24,4 @@ dependencies:
   - imageio
   - pip:    # build vispy from master
     - "--editable=git+https://github.com/vispy/vispy.git#egg=vispy-master"
-    - "C:/Users/Eelco/Downloads/pyopencl-2016.1-cp35-cp35m-win_amd64.whl"
+    - "pyopencl-2016.1-cp35-cp35m-win_amd64.whl"

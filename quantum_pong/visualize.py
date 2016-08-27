@@ -13,13 +13,15 @@ from reference import Simulation
 class Canvas(vispy.app.Canvas):
     def __init__(self, simulation):
         self.simulation = simulation
-        vispy.app.Canvas.__init__(self, keys='interactive', size=(800, 800))
+        size = 1500.
+        vispy.app.Canvas.__init__(self, keys='interactive', size=(size, size))
         self.image = visuals.ImageVisual(self.simulation.get_image(), method='subdivide')
 
         # scale and center image in canvas
-        s = 700. / max(self.image.size)
-        t = 0.5 * (700. - (self.image.size[0] * s)) + 50
-        self.image.transform = STTransform(scale=(s, s), translate=(t, 50))
+        padding = 100.
+        s = (size - padding) / max(self.image.size)
+        t = 0.5 * (size - (self.image.size[0] * s)) + padding / 2
+        self.image.transform = STTransform(scale=(s, s), translate=(t, padding / 2))
 
         self.show()
 
@@ -41,8 +43,8 @@ class Canvas(vispy.app.Canvas):
 
 
 if __name__ == '__main__':
-    sim = Simulation((256, 256), [1, 1], 0.1)
-    sim.phi = sim.gaussian_wave(pos=[0.0, -0.0], vec=[200, 50], sigma=0.05)
+    sim = Simulation((512, 512), [1, 1], 0.5)
+    sim.phi = sim.gaussian_wave(pos=[0.0, -0.1], vec=[400, 50], sigma=0.05)
 
     win = Canvas(sim)
     # import sys
